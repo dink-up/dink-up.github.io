@@ -15,9 +15,10 @@ Key Libraries:
 - React Query or SWR (data fetching/caching)
 - Zustand or React Context (state management)
 - date-fns or dayjs (date handling)
+- Lucide React (icons)
 
 Styling:
-- CSS Modules or Tailwind CSS
+- Tailwind CSS
 - Mobile-first responsive design
 
 ---
