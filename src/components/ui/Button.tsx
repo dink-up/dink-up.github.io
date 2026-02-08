@@ -1,57 +1,59 @@
-import { type ButtonHTMLAttributes, type ReactNode } from 'react';
-import { Loader2 } from 'lucide-react';
-
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
-type ButtonSize = 'default' | 'small';
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { Spinner } from './Spinner';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
+  variant?: 'primary' | 'secondary' | 'ghost';
+  size?: 'default' | 'small';
   loading?: boolean;
-  children: ReactNode;
+  children?: ReactNode;
+  label?: string;
 }
 
-const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-teal-600 text-white hover:bg-teal-700 dark:bg-teal-500 dark:text-slate-950 dark:hover:bg-teal-400',
-  secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700',
-  ghost: 'bg-transparent text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800',
-  danger: 'bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-400',
-};
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      variant = 'primary',
+      size = 'default',
+      loading = false,
+      disabled,
+      children,
+      label,
+      className = '',
+      ...props
+    },
+    ref
+  ) => {
+    const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+    
+    const variantStyles = {
+      primary: 'bg-teal-600 text-white hover:bg-teal-700 dark:bg-teal-500 dark:text-slate-950 dark:hover:bg-teal-400',
+      secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700',
+      ghost: 'bg-transparent text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800',
+    };
+    
+    const sizeStyles = {
+      default: 'h-11 px-4',
+      small: 'h-9 px-3 text-sm',
+    };
 
-const sizeStyles: Record<ButtonSize, string> = {
-  default: 'h-11 px-4 text-base',
-  small: 'h-9 px-3 text-sm',
-};
+    return (
+      <button
+        ref={ref}
+        disabled={disabled || loading}
+        className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+        {...props}
+      >
+        {loading ? (
+          <>
+            <Spinner className="w-4 h-4 mr-2" />
+            <span>{label || children}</span>
+          </>
+        ) : (
+          label || children
+        )}
+      </button>
+    );
+  }
+);
 
-export function Button({
-  variant = 'primary',
-  size = 'default',
-  loading = false,
-  disabled,
-  children,
-  className = '',
-  ...props
-}: ButtonProps) {
-  const isDisabled = disabled || loading;
-
-  return (
-    <button
-      className={`
-        inline-flex items-center justify-center gap-2
-        rounded-lg font-medium
-        transition-colors duration-150
-        focus:outline-none focus:ring-2 focus:ring-teal-600 focus:ring-offset-2
-        dark:focus:ring-teal-400 dark:focus:ring-offset-slate-900
-        disabled:opacity-50 disabled:cursor-not-allowed
-        ${variantStyles[variant]}
-        ${sizeStyles[size]}
-        ${className}
-      `}
-      disabled={isDisabled}
-      {...props}
-    >
-      {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-      {children}
-    </button>
-  );
-}
+Button.displayName = 'Button';

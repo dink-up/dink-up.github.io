@@ -1,31 +1,27 @@
 export const ROUTES = {
-  // Auth
-  LOGIN: '/login',
-  SIGNUP: '/signup',
-  
-  // Main tabs
   HOME: '/',
   DISCOVER: '/discover',
   PROFILE: '/profile',
-  
-  // Events
-  EVENT_DETAIL: '/event/:eventId',
-  CREATE_EVENT: '/event/create',
-  EDIT_EVENT: '/event/:eventId/edit',
-  
-  // Lists
-  LISTS: '/lists',
-  LIST_DETAIL: '/list/:listId',
-  CREATE_LIST: '/list/create',
-  
-  // Notifications
-  NOTIFICATIONS: '/notifications',
-  
-  // Settings
   SETTINGS: '/settings',
+  NOTIFICATIONS: '/notifications',
+  LOGIN: '/login',
+  SIGNUP: '/signup',
+  CREATE_EVENT: '/events/create',
+  EVENT_DETAIL: '/events/:eventId',
+  EDIT_EVENT: '/events/:eventId/edit',
+  LIST_DETAIL: '/lists/:listId',
+  CREATE_LIST: '/lists/create',
 } as const;
 
-// Helper function to generate dynamic routes
-export const getEventRoute = (eventId: string) => `/event/${eventId}`;
-export const getEditEventRoute = (eventId: string) => `/event/${eventId}/edit`;
-export const getListRoute = (listId: string) => `/list/${listId}`;
+// Helper functions to generate routes with parameters
+export function getEventRoute(eventId: string): string {
+  return ROUTES.EVENT_DETAIL.replace(':eventId', eventId);
+}
+
+export function getEditEventRoute(eventId: string): string {
+  return ROUTES.EDIT_EVENT.replace(':eventId', eventId);
+}
+
+export function getListRoute(listId: string): string {
+  return ROUTES.LIST_DETAIL.replace(':listId', listId);
+}

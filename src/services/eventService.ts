@@ -15,7 +15,7 @@ import {
   addDoc,
 } from 'firebase/firestore';
 import { db } from '@/config/firebase';
-import type { Event, CreateEventData, UpdateEventData, EventParticipant, ParticipantStatus } from '@/types';
+import type { Event, CreateEventData, UpdateEventData, EventParticipant, ParticipantStatus } from '@/types/event.types';
 
 // Helper to convert Firestore timestamps to Date
 const convertTimestamp = (timestamp: Timestamp | null): Date => {
@@ -141,8 +141,8 @@ export const eventService = {
     const snapshot = await getDocs(q);
     if (snapshot.empty) return null;
 
-    const doc = snapshot.docs[0];
-    return docToEvent(doc.id, doc.data());
+    const eventDoc = snapshot.docs[0];
+    return docToEvent(eventDoc.id, eventDoc.data());
   },
 
   // Get public events
@@ -157,7 +157,7 @@ export const eventService = {
     );
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => docToEvent(doc.id, doc.data()));
+    return snapshot.docs.map(eventDoc => docToEvent(eventDoc.id, eventDoc.data()));
   },
 
   // Get events by owner
@@ -170,15 +170,11 @@ export const eventService = {
     );
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => docToEvent(doc.id, doc.data()));
+    return snapshot.docs.map(eventDoc => docToEvent(eventDoc.id, eventDoc.data()));
   },
 
   // Get events where user is participant
   async getByParticipant(userId: string): Promise<Event[]> {
-    // This requires querying the subcollection, then getting the events
-    // For simplicity, we'll use a different approach - store eventIds on user doc
-    // But for now, we'll query all events and filter
-    // In production, you'd want to denormalize this data
     const eventsRef = collection(db, 'events');
     const q = query(
       eventsRef,
@@ -187,7 +183,7 @@ export const eventService = {
     );
 
     const snapshot = await getDocs(q);
-    const events = snapshot.docs.map(doc => docToEvent(doc.id, doc.data()));
+    const events = snapshot.docs.map(eventDoc => docToEvent(eventDoc.id, eventDoc.data()));
 
     // Filter to only events where user is a participant
     const participantEvents: Event[] = [];
@@ -253,13 +249,13 @@ export const eventService = {
     const participantsRef = collection(db, 'events', eventId, 'participants');
     const snapshot = await getDocs(participantsRef);
 
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      status: doc.data().status,
-      role: doc.data().role,
-      joinedAt: convertTimestamp(doc.data().joinedAt),
-      invitedBy: doc.data().invitedBy,
-      waitlistPosition: doc.data().waitlistPosition,
+    return snapshot.docs.map(participantDoc => ({
+      id: participantDoc.id,
+      status: participantDoc.data().status,
+      role: participantDoc.data().role,
+      joinedAt: convertTimestamp(participantDoc.data().joinedAt),
+      invitedBy: participantDoc.data().invitedBy,
+      waitlistPosition: participantDoc.data().waitlistPosition,
     }));
   },
 
@@ -268,13 +264,13 @@ export const eventService = {
     const q = query(participantsRef, where('status', '==', status));
     const snapshot = await getDocs(q);
 
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      status: doc.data().status,
-      role: doc.data().role,
-      joinedAt: convertTimestamp(doc.data().joinedAt),
-      invitedBy: doc.data().invitedBy,
-      waitlistPosition: doc.data().waitlistPosition,
+    return snapshot.docs.map(participantDoc => ({
+      id: participantDoc.id,
+      status: participantDoc.data().status,
+      role: participantDoc.data().role,
+      joinedAt: convertTimestamp(participantDoc.data().joinedAt),
+      invitedBy: participantDoc.data().invitedBy,
+      waitlistPosition: participantDoc.data().waitlistPosition,
     }));
   },
 
@@ -367,7 +363,7 @@ export const eventService = {
             waitlistPosition: null,
           });
           transaction.update(eventRef, {
-            joinedCount: eventData.joinedCount, // Stays same since we promote one
+            joinedCount: eventData.joinedCount,
             waitlistCount: Math.max(0, (eventData.waitlistCount || 1) - 1),
           });
         }

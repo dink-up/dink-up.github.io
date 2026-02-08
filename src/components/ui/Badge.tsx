@@ -1,95 +1,94 @@
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
-type BadgeVariant = 
-  | 'joined' 
-  | 'waitlisted' 
-  | 'pending' 
-  | 'canceled' 
-  | 'owner' 
-  | 'admin'
-  | 'default';
+// Status badges for participant status
+type StatusType = 'joined' | 'waitlisted' | 'invited_pending' | 'pending' | 'declined' | 'canceled';
 
-interface BadgeProps {
-  variant?: BadgeVariant;
-  children: ReactNode;
+interface StatusBadgeProps {
+  status: string;
   className?: string;
 }
 
-const variantStyles: Record<BadgeVariant, string> = {
+const statusStyles: Record<StatusType, string> = {
   joined: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800',
   waitlisted: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800',
+  invited_pending: 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
   pending: 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
+  declined: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-800',
   canceled: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-800',
-  owner: 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950 dark:text-teal-400 dark:border-teal-800',
-  admin: 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950 dark:text-purple-400 dark:border-purple-800',
-  default: 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
 };
 
-export function Badge({ variant = 'default', children, className = '' }: BadgeProps) {
+const statusLabels: Record<StatusType, string> = {
+  joined: 'Joined',
+  waitlisted: 'Waitlisted',
+  invited_pending: 'Invited',
+  pending: 'Pending',
+  declined: 'Declined',
+  canceled: 'Canceled',
+};
+
+export function StatusBadge({ status, className = '' }: StatusBadgeProps) {
+  const normalizedStatus = status.toLowerCase() as StatusType;
+  const styles = statusStyles[normalizedStatus] || statusStyles.pending;
+  const label = statusLabels[normalizedStatus] || status;
+  
   return (
-    <span
-      className={`
-        inline-flex items-center
-        text-xs font-medium
-        px-2 py-1 rounded-md
-        border
-        ${variantStyles[variant]}
-        ${className}
-      `}
-    >
-      {children}
+    <span className={`text-xs font-medium px-2 py-1 rounded-md border ${styles} ${className}`}>
+      {label}
     </span>
   );
 }
 
-// Helper component for participant status badges
-export function StatusBadge({ status }: { status: string }) {
-  const statusVariants: Record<string, BadgeVariant> = {
-    joined: 'joined',
-    invited_pending: 'pending',
-    waitlisted: 'waitlisted',
-    declined: 'canceled',
-    active: 'joined',
-    canceled: 'canceled',
-    completed: 'default',
-  };
+// Role badges for event roles
+type RoleType = 'owner' | 'admin' | 'player';
 
-  const statusLabels: Record<string, string> = {
-    joined: 'Joined',
-    invited_pending: 'Pending',
-    waitlisted: 'Waitlisted',
-    declined: 'Declined',
-    active: 'Active',
-    canceled: 'Canceled',
-    completed: 'Completed',
-  };
+interface RoleBadgeProps {
+  role: string;
+  className?: string;
+}
 
+const roleStyles: Record<RoleType, string> = {
+  owner: 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950 dark:text-teal-400 dark:border-teal-800',
+  admin: 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950 dark:text-purple-400 dark:border-purple-800',
+  player: 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
+};
+
+const roleLabels: Record<RoleType, string> = {
+  owner: 'Owner',
+  admin: 'Admin',
+  player: 'Player',
+};
+
+export function RoleBadge({ role, className = '' }: RoleBadgeProps) {
+  const normalizedRole = role.toLowerCase() as RoleType;
+  const styles = roleStyles[normalizedRole] || roleStyles.player;
+  const label = roleLabels[normalizedRole] || role;
+  
   return (
-    <Badge variant={statusVariants[status] || 'default'}>
-      {statusLabels[status] || status}
-    </Badge>
+    <span className={`text-xs font-medium px-2 py-1 rounded-md border ${styles} ${className}`}>
+      {label}
+    </span>
   );
 }
 
-// Helper component for role badges
-export function RoleBadge({ role }: { role: string }) {
-  const roleVariants: Record<string, BadgeVariant> = {
-    owner: 'owner',
-    admin: 'admin',
-    player: 'default',
-  };
+// Generic badge component
+interface BadgeProps {
+  children: ReactNode;
+  variant?: 'default' | 'success' | 'warning' | 'error' | 'info';
+  className?: string;
+}
 
-  const roleLabels: Record<string, string> = {
-    owner: 'Owner',
-    admin: 'Admin',
-  };
+const variantStyles = {
+  default: 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
+  success: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800',
+  warning: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800',
+  error: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-800',
+  info: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-800',
+};
 
-  // Don't show badge for regular players
-  if (role === 'player') return null;
-
+export function Badge({ children, variant = 'default', className = '' }: BadgeProps) {
   return (
-    <Badge variant={roleVariants[role] || 'default'}>
-      {roleLabels[role] || role}
-    </Badge>
+    <span className={`text-xs font-medium px-2 py-1 rounded-md border ${variantStyles[variant]} ${className}`}>
+      {children}
+    </span>
   );
 }
