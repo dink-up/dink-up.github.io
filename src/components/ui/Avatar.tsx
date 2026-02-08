@@ -1,11 +1,19 @@
-import { User } from 'lucide-react';
+import { generateAvatarSvg } from '@/utils/avatarUtils';
 
 type AvatarSize = 'small' | 'default' | 'large';
 
 interface AvatarProps {
+  /** URL of the user's profile photo (from OAuth provider) */
   src?: string | null;
+  /** User ID for generating deterministic avatar when no photo */
+  userId?: string;
+  /** User's display name for initials on generated avatar */
+  displayName?: string | null;
+  /** Alt text for the avatar image */
   alt?: string;
+  /** Size variant */
   size?: AvatarSize;
+  /** Additional CSS classes */
   className?: string;
 }
 
@@ -15,13 +23,22 @@ const sizeStyles: Record<AvatarSize, string> = {
   large: 'w-16 h-16',
 };
 
-const iconSizes: Record<AvatarSize, string> = {
-  small: 'w-4 h-4',
-  default: 'w-5 h-5',
-  large: 'w-8 h-8',
+// SVG sizes for generating avatars at appropriate resolution
+const svgSizes: Record<AvatarSize, number> = {
+  small: 32,
+  default: 40,
+  large: 64,
 };
 
-export function Avatar({ src, alt = 'User', size = 'default', className = '' }: AvatarProps) {
+export function Avatar({ 
+  src, 
+  userId, 
+  displayName,
+  alt = 'User', 
+  size = 'default', 
+  className = '' 
+}: AvatarProps) {
+  // If there's an OAuth photo URL, use it
   if (src) {
     return (
       <img
@@ -37,17 +54,20 @@ export function Avatar({ src, alt = 'User', size = 'default', className = '' }: 
     );
   }
 
+  // Generate deterministic avatar based on user ID with initials
+  // Use a fallback ID if none provided (shouldn't happen in practice)
+  const effectiveUserId = userId || 'default-user';
+  const generatedSrc = generateAvatarSvg(effectiveUserId, displayName, svgSizes[size]);
+
   return (
-    <div
+    <img
+      src={generatedSrc}
+      alt={alt}
       className={`
         ${sizeStyles[size]}
         rounded-full
-        bg-slate-100 dark:bg-slate-800
-        flex items-center justify-center
         ${className}
       `}
-    >
-      <User className={`${iconSizes[size]} text-slate-400 dark:text-slate-500`} />
-    </div>
+    />
   );
 }

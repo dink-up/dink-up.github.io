@@ -19,7 +19,13 @@ export function ProfileView() {
       <div className="space-y-6">
         {/* Profile Header */}
         <div className="flex flex-col items-center py-6">
-          <Avatar src={user?.photoURL} alt={user?.displayName || 'User'} size="large" />
+          <Avatar 
+            src={user?.photoURL} 
+            userId={user?.uid}
+            displayName={user?.displayName}
+            alt={user?.displayName || 'User'} 
+            size="large" 
+          />
           <h2 className="mt-4 text-xl font-semibold text-slate-900 dark:text-slate-100">
             {user?.displayName || 'User'}
           </h2>

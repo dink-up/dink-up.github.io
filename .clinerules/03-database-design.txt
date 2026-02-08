@@ -1,4 +1,4 @@
-Db design
+juDb design
 
 Dink Up – Firestore Database Model (MVP)
 
@@ -7,7 +7,10 @@ Document ID: userId (Firebase Auth UID)
 
 Fields:
 - displayName (string)
-- photoUrl (string)
+- photoUrl (string | null)
+  // Only populated from OAuth provider (Google/Microsoft)
+  // For users without OAuth photos, avatars are generated client-side
+  // using deterministic algorithm based on userId (not stored in database)
 - createdAt (timestamp)
 - updatedAt (timestamp)
 

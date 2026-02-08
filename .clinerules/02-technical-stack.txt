@@ -34,8 +34,10 @@ Services Used:
   - Microsoft Sign-In
   - Email/Password
 - Cloud Firestore (database)
-- Firebase Storage (profile photos)
 - Cloud Functions (optional, for complex operations like eventCode validation)
+
+Note: Firebase Storage is NOT used. Profile avatars are generated client-side
+using a deterministic algorithm based on user ID (similar to GitHub identicons).
 
 ---
 
@@ -105,9 +107,8 @@ FIREBASE CONFIGURATION
 1. Create Firebase project in Firebase Console
 2. Enable Authentication providers (Google, Microsoft, Email/Password)
 3. Create Firestore database (start in test mode, then add security rules)
-4. Enable Storage for profile photos
-5. Deploy Firestore indexes (see database-design.txt)
-6. Configure security rules for Firestore and Storage
+4. Deploy Firestore indexes (see database-design.txt)
+5. Configure security rules for Firestore
 
 ---
 

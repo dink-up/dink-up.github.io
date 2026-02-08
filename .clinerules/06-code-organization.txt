@@ -58,7 +58,6 @@ PROJECT STRUCTURE
     eventService.ts    # Event CRUD operations
     listService.ts     # List CRUD operations
     notificationService.ts
-    storageService.ts  # File uploads (profile photos)
   
   /types               # TypeScript type definitions
     user.types.ts
@@ -67,6 +66,7 @@ PROJECT STRUCTURE
     notification.types.ts
   
   /utils               # Utility functions
+    avatarUtils.ts     # Deterministic avatar generation (identicon-style)
     dateUtils.ts       # Date formatting helpers
     validationUtils.ts # Form validation
     locationUtils.ts   # Maps / location helpers
@@ -108,7 +108,7 @@ import { Button } from '@/components/ui/Button';
 
 export function EventDetailView() {
   const { eventId } = useParams();
-  const { event, isLoading, error } = useEvent(eventId);
+  const { event, isLappoading, error } = useEvent(eventId);
   const { participants, join, leave } = useParticipants(eventId);
 
   if (isLoading) return <PageLayout><Spinner /></PageLayout>;
@@ -156,7 +156,9 @@ CapacityBar.tsx
 - Visual capacity indicator
 
 Avatar.tsx
-- User profile photo with fallback
+- User profile photo from OAuth or generated identicon
+- Uses avatarUtils for deterministic generation based on userId
+- Shows OAuth photo when available, generated avatar otherwise
 
 Spinner.tsx
 - Loading indicator

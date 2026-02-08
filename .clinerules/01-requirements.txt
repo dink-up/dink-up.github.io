@@ -15,7 +15,14 @@ Users can:
 User Profile:
 - Unique system-generated user ID
 - Display name
-- Profile photo (OAuth or uploaded)
+- Profile photo from OAuth provider (Google/Microsoft) if available
+- Generated avatar for users without OAuth photos
+  - Gradient background with vibrant, modern colors
+  - User initials overlaid on the gradient
+  - Subtle decorative pattern for visual uniqueness
+  - Deterministic: same avatar generated for same user ID across all devices
+  - Computed client-side based on user ID hash
+  - No server storage required
 - CreatedAt
 - UpdatedAt
 

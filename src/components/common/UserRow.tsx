@@ -28,7 +28,12 @@ export function UserRow({
         ${className}
       `}
     >
-      <Avatar src={user.photoUrl} alt={user.displayName} />
+      <Avatar 
+        src={user.photoUrl} 
+        userId={user.id} 
+        displayName={user.displayName}
+        alt={user.displayName} 
+      />
       <div className="flex-1 min-w-0 text-left">
         <div className="flex items-center gap-2">
           <span className="text-base font-medium text-slate-900 dark:text-slate-100 truncate">
