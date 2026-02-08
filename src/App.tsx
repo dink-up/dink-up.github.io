@@ -26,7 +26,7 @@ const queryClient = new QueryClient({
   },
 });
 
-// Protected route wrapper
+// Protected route wrapper - redirects to login if not authenticated
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
 
@@ -51,6 +51,18 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
   if (user) {
     return <Navigate to={ROUTES.HOME} replace />;
+  }
+
+  return <>{children}</>;
+}
+
+// Optional auth route wrapper - allows both authenticated and unauthenticated access
+// Just waits for auth state to resolve before rendering
+function OptionalAuthRoute({ children }: { children: React.ReactNode }) {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return <PageSpinner />;
   }
 
   return <>{children}</>;
@@ -110,12 +122,13 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      {/* Event detail is publicly viewable - uses auth gate for actions */}
       <Route
         path={ROUTES.EVENT_DETAIL}
         element={
-          <ProtectedRoute>
+          <OptionalAuthRoute>
             <EventDetailView />
-          </ProtectedRoute>
+          </OptionalAuthRoute>
         }
       />
       <Route

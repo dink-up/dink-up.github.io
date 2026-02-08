@@ -353,6 +353,17 @@ export const eventService = {
 
   // Leave event
   async leaveEvent(eventId: string, userId: string): Promise<void> {
+    // First, check if there's someone on the waitlist to promote
+    const waitlistRef = collection(db, 'events', eventId, 'participants');
+    const waitlistQuery = query(
+      waitlistRef,
+      where('status', '==', 'waitlisted'),
+      orderBy('waitlistPosition', 'asc'),
+      limit(1)
+    );
+    const waitlistSnap = await getDocs(waitlistQuery);
+    const firstWaitlistedId = waitlistSnap.empty ? null : waitlistSnap.docs[0].id;
+
     await runTransaction(db, async (transaction) => {
       const eventRef = doc(db, 'events', eventId);
       const participantRef = doc(db, 'events', eventId, 'participants', userId);
@@ -372,33 +383,25 @@ export const eventService = {
       transaction.delete(participantRef);
 
       if (wasJoined) {
-        // Decrement joined count
-        transaction.update(eventRef, {
-          joinedCount: Math.max(0, (eventData.joinedCount || 1) - 1),
-          updatedAt: serverTimestamp(),
-        });
-
-        // Promote first waitlisted player
-        const waitlistRef = collection(db, 'events', eventId, 'participants');
-        const waitlistQuery = query(
-          waitlistRef,
-          where('status', '==', 'waitlisted'),
-          orderBy('waitlistPosition', 'asc'),
-          limit(1)
-        );
-        
-        const waitlistSnap = await getDocs(waitlistQuery);
-        if (!waitlistSnap.empty) {
-          const firstWaitlisted = waitlistSnap.docs[0];
-          const firstWaitlistedRef = doc(db, 'events', eventId, 'participants', firstWaitlisted.id);
+        // Check if we need to promote someone from waitlist
+        if (firstWaitlistedId) {
+          const firstWaitlistedRef = doc(db, 'events', eventId, 'participants', firstWaitlistedId);
           
+          // Promote the first waitlisted person - joinedCount stays the same, waitlistCount decreases
           transaction.update(firstWaitlistedRef, {
             status: 'joined',
             waitlistPosition: null,
           });
           transaction.update(eventRef, {
-            joinedCount: eventData.joinedCount,
+            // joinedCount stays the same (one left, one promoted)
             waitlistCount: Math.max(0, (eventData.waitlistCount || 1) - 1),
+            updatedAt: serverTimestamp(),
+          });
+        } else {
+          // No one to promote, just decrement joined count
+          transaction.update(eventRef, {
+            joinedCount: Math.max(0, (eventData.joinedCount || 1) - 1),
+            updatedAt: serverTimestamp(),
           });
         }
       } else if (wasWaitlisted) {

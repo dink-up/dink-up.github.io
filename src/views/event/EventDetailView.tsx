@@ -11,8 +11,10 @@ import { StatusBadge, RoleBadge, ParticipantStatusBadge } from '@/components/ui/
 import { Spinner } from '@/components/ui/Spinner';
 import { Avatar } from '@/components/ui/Avatar';
 import { Modal } from '@/components/ui/Modal';
+import { AuthGateModal } from '@/components/ui/AuthGateModal';
 import { useEvent } from '@/hooks/useEvent';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthGateWithMessage } from '@/hooks/useAuthGate';
 import { eventService } from '@/services/eventService';
 import { userService } from '@/services/userService';
 import { ROUTES } from '@/config/routes';
@@ -25,6 +27,16 @@ export function EventDetailView() {
   const { user } = useAuth();
   const { event, participants, isLoading, error, refetch } = useEvent(eventId);
   
+  // Auth gate for protected actions
+  const {
+    requireAuth,
+    isAuthModalOpen,
+    closeAuthModal,
+    onAuthSuccess,
+    modalTitle,
+    modalMessage,
+  } = useAuthGateWithMessage();
+  
   // Modal state
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,10 +44,10 @@ export function EventDetailView() {
   const [isSearching, setIsSearching] = useState(false);
   const [inviting, setInviting] = useState<string | null>(null);
 
-  // Check user's participation status
-  const userParticipant = participants.find(p => p.id === user?.uid);
-  const isOwner = event?.ownerId === user?.uid;
-  const isAdmin = event?.adminIds?.includes(user?.uid || '');
+  // Check user's participation status (handle unauthenticated users)
+  const userParticipant = user ? participants.find(p => p.id === user.uid) : null;
+  const isOwner = user ? event?.ownerId === user.uid : false;
+  const isAdmin = user ? event?.adminIds?.includes(user.uid) : false;
   const canManage = isOwner || isAdmin;
   const isJoined = userParticipant?.status === 'joined';
   const isWaitlisted = userParticipant?.status === 'waitlisted';
@@ -49,24 +61,38 @@ export function EventDetailView() {
     .sort((a, b) => (a.waitlistPosition || 0) - (b.waitlistPosition || 0));
   const declinedParticipants = participants.filter(p => p.status === 'declined');
 
-  const handleJoin = async () => {
-    if (!eventId || !user) return;
-    try {
-      await eventService.joinEvent(eventId, user.uid);
-      refetch();
-    } catch (err) {
-      console.error('Failed to join event:', err);
-    }
+  // Action to join - wrapped with auth gate
+  const handleJoin = () => {
+    requireAuth(
+      async () => {
+        if (!eventId || !user) return;
+        try {
+          await eventService.joinEvent(eventId, user.uid);
+          refetch();
+        } catch (err) {
+          console.error('Failed to join event:', err);
+        }
+      },
+      'Sign in to join',
+      'Create an account or sign in to join this event and get updates.'
+    );
   };
 
-  const handleLeave = async () => {
-    if (!eventId || !user) return;
-    try {
-      await eventService.leaveEvent(eventId, user.uid);
-      refetch();
-    } catch (err) {
-      console.error('Failed to leave event:', err);
-    }
+  // Action to leave - wrapped with auth gate
+  const handleLeave = () => {
+    requireAuth(
+      async () => {
+        if (!eventId || !user) return;
+        try {
+          await eventService.leaveEvent(eventId, user.uid);
+          refetch();
+        } catch (err) {
+          console.error('Failed to leave event:', err);
+        }
+      },
+      'Sign in required',
+      'You need to be signed in to leave this event.'
+    );
   };
 
   const handleOpenMaps = () => {
@@ -110,7 +136,17 @@ export function EventDetailView() {
     }
   };
 
-  // Search for users to invite
+  // Search for users to invite - requires auth
+  const handleOpenInviteModal = () => {
+    requireAuth(
+      () => {
+        setShowInviteModal(true);
+      },
+      'Sign in to invite',
+      'You need to be signed in to invite players to this event.'
+    );
+  };
+
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
     if (query.length < 2) {
@@ -260,8 +296,8 @@ export function EventDetailView() {
           <CapacityBar current={event.joinedCount} max={event.maxPlayers} />
         </Card>
 
-        {/* Admin Controls */}
-        {canManage && (
+        {/* Admin Controls - only show if user is authenticated and has permissions */}
+        {user && canManage && (
           <Card>
             <div className="flex items-center justify-between">
               <h3 className="text-base font-medium text-slate-900 dark:text-slate-100">
@@ -269,7 +305,7 @@ export function EventDetailView() {
               </h3>
               <Button
                 size="small"
-                onClick={() => setShowInviteModal(true)}
+                onClick={handleOpenInviteModal}
               >
                 <UserPlus className="w-4 h-4" />
                 Invite Players
@@ -414,6 +450,7 @@ export function EventDetailView() {
             )}
           </div>
         </div>
+
         {/* Invite Players Modal */}
         <Modal
           isOpen={showInviteModal}
@@ -482,6 +519,15 @@ export function EventDetailView() {
             )}
           </div>
         </Modal>
+
+        {/* Auth Gate Modal */}
+        <AuthGateModal
+          isOpen={isAuthModalOpen}
+          onClose={closeAuthModal}
+          onSuccess={onAuthSuccess}
+          title={modalTitle}
+          message={modalMessage}
+        />
       </div>
     </PageLayout>
   );
