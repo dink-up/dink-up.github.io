@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, type ReactNode } from 'react';
 import { ThemeContext, type Theme } from './themeContext';
+import { themeColors } from '@/config/theme';
 
 const THEME_KEY = 'dinkup-theme';
 
@@ -39,7 +40,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     root.classList.add(resolvedTheme);
 
     // Update theme-color meta tag for iOS Safari
-    const themeColor = resolvedTheme === 'dark' ? '#020617' : '#ffffff';
+    const themeColor = resolvedTheme === 'dark' ? themeColors.dark : themeColors.light;
     let metaThemeColor = document.querySelector('meta[name="theme-color"]:not([media])');
     
     // If user has manually set a theme (not system), we need to override the media-query based meta tags

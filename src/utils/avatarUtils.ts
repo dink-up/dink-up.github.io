@@ -5,21 +5,10 @@
  * The avatar is computed client-side and produces the same result across all devices.
  */
 
-// Gradient color pairs - vibrant, modern colors that complement the cyan brand
-const GRADIENT_PAIRS = [
-  ['#0891b2', '#06b6d4'], // cyan-600 to cyan-500
-  ['#0ea5e9', '#38bdf8'], // sky-500 to sky-400
-  ['#059669', '#10b981'], // emerald-600 to emerald-500
-  ['#7c3aed', '#8b5cf6'], // violet-600 to violet-500
-  ['#db2777', '#ec4899'], // pink-600 to pink-500
-  ['#ea580c', '#f97316'], // orange-600 to orange-500
-  ['#4f46e5', '#6366f1'], // indigo-600 to indigo-500
-  ['#0284c7', '#0ea5e9'], // sky-600 to sky-500
-  ['#16a34a', '#22c55e'], // green-600 to green-500
-  ['#9333ea', '#a855f7'], // purple-600 to purple-500
-  ['#dc2626', '#ef4444'], // red-600 to red-500
-  ['#ca8a04', '#eab308'], // yellow-600 to yellow-500
-];
+import { avatarGradients } from '@/config/theme';
+
+// Use gradient pairs from centralized theme config
+const GRADIENT_PAIRS = avatarGradients;
 
 
 /**

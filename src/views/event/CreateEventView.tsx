@@ -91,9 +91,9 @@ export function CreateEventView() {
               key={s}
               className={`w-2 h-2 rounded-full transition-colors ${
                 s === step
-                  ? 'bg-cyan-600 dark:bg-cyan-400'
+                  ? 'bg-primary-600 dark:bg-primary-400'
                   : s < step
-                  ? 'bg-cyan-300 dark:bg-cyan-700'
+                  ? 'bg-primary-300 dark:bg-primary-700'
                   : 'bg-slate-200 dark:bg-slate-700'
               }`}
             />
@@ -131,7 +131,7 @@ export function CreateEventView() {
                   placeholder="Add details about your event..."
                   rows={3}
                   maxLength={500}
-                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-cyan-600 dark:focus:border-cyan-400"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-primary-600 dark:focus:border-primary-400"
                 />
                 <p className="text-xs text-slate-500 mt-1">{description.length}/500</p>
               </div>
@@ -239,7 +239,7 @@ export function CreateEventView() {
                 <select
                   value={visibility}
                   onChange={(e) => setVisibility(e.target.value as EventVisibility)}
-                  className="w-full h-11 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-600 dark:focus:border-cyan-400"
+                  className="w-full h-11 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:border-primary-600 dark:focus:border-primary-400"
                 >
                   <option value="public">Public - Anyone can find</option>
                   <option value="code">Code - Need event code</option>
@@ -254,7 +254,7 @@ export function CreateEventView() {
                 <select
                   value={joinType}
                   onChange={(e) => setJoinType(e.target.value as EventJoinType)}
-                  className="w-full h-11 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-600 dark:focus:border-cyan-400"
+                  className="w-full h-11 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:border-primary-600 dark:focus:border-primary-400"
                 >
                   <option value="open">Open - Auto-join if space available</option>
                   <option value="invite_only">Invite Only</option>

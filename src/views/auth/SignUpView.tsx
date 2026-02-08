@@ -40,7 +40,7 @@ export function SignUpView() {
   return (
     <SimpleLayout className="flex flex-col justify-center">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-cyan-600 dark:text-cyan-400 mb-2">
+        <h1 className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">
           Join Dink Up
         </h1>
         <p className="text-slate-600 dark:text-slate-400">
@@ -103,7 +103,7 @@ export function SignUpView() {
 
       <p className="text-center text-sm text-slate-600 dark:text-slate-400">
         Already have an account?{' '}
-        <Link to={ROUTES.LOGIN} className="text-cyan-600 dark:text-cyan-400 font-medium hover:underline">
+        <Link to={ROUTES.LOGIN} className="text-primary-600 dark:text-primary-400 font-medium hover:underline">
           Sign in
         </Link>
       </p>

@@ -172,7 +172,7 @@ export function AuthGateModal({
               <button
                 type="button"
                 onClick={toggleMode}
-                className="text-cyan-600 dark:text-cyan-400 font-medium hover:underline"
+                className="text-primary-600 dark:text-primary-400 font-medium hover:underline"
               >
                 Sign up
               </button>
@@ -183,7 +183,7 @@ export function AuthGateModal({
               <button
                 type="button"
                 onClick={toggleMode}
-                className="text-cyan-600 dark:text-cyan-400 font-medium hover:underline"
+                className="text-primary-600 dark:text-primary-400 font-medium hover:underline"
               >
                 Sign in
               </button>

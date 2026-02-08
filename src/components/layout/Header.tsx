@@ -37,7 +37,7 @@ export function Header({
             </h1>
           )}
           {!title && !showBack && (
-            <span className="text-xl font-bold text-cyan-600 dark:text-cyan-400">
+            <span className="text-xl font-bold text-primary-600 dark:text-primary-400">
               Dink Up
             </span>
           )}

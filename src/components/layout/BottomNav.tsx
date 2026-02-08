@@ -22,7 +22,7 @@ export function BottomNav() {
               text-xs font-medium
               transition-colors
               ${isActive
-                ? 'text-cyan-600 dark:text-cyan-400'
+                ? 'text-primary-600 dark:text-primary-400'
                 : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
               }
             `}
