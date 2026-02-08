@@ -55,6 +55,9 @@ export interface EventParticipant {
   joinedAt: Date;
   invitedBy?: string;
   waitlistPosition?: number;
+  // User profile data (populated from users collection)
+  displayName?: string;
+  photoUrl?: string | null;
 }
 
 export interface CreateEventData {

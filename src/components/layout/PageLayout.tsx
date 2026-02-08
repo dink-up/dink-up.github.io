@@ -38,10 +38,14 @@ export function PageLayout({
                   <ArrowLeft className="w-5 h-5" />
                 </button>
               )}
-              {title && (
+              {title ? (
                 <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                   {title}
                 </h1>
+              ) : !showBack && (
+                <span className="text-xl font-bold text-teal-600 dark:text-teal-400">
+                  Dink Up
+                </span>
               )}
             </div>
             {showNotifications && (

@@ -24,6 +24,7 @@ export const userService = {
     const userRef = doc(db, 'users', userId);
     await setDoc(userRef, {
       displayName,
+      displayNameLower: displayName.toLowerCase(),
       photoUrl,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -39,6 +40,7 @@ export const userService = {
       // Update existing user
       await updateDoc(userRef, {
         displayName,
+        displayNameLower: displayName.toLowerCase(),
         photoUrl,
         updatedAt: serverTimestamp(),
       });
@@ -83,21 +85,29 @@ export const userService = {
   // Update user profile
   async updateProfile(userId: string, data: Partial<Pick<User, 'displayName' | 'photoUrl'>>): Promise<void> {
     const userRef = doc(db, 'users', userId);
-    await updateDoc(userRef, {
+    const updateData: Record<string, unknown> = {
       ...data,
       updatedAt: serverTimestamp(),
-    });
+    };
+    // Keep displayNameLower in sync if displayName is updated
+    if (data.displayName) {
+      updateData.displayNameLower = data.displayName.toLowerCase();
+    }
+    await updateDoc(userRef, updateData);
   },
 
-  // Search users by display name
+  // Search users by display name (case-insensitive)
   async searchByName(searchTerm: string, limit = 10): Promise<UserProfile[]> {
     const usersRef = collection(db, 'users');
+    const searchTermLower = searchTerm.toLowerCase();
+    
     // Note: Firestore doesn't support full-text search natively
-    // This is a simple prefix search - for production, consider Algolia or similar
+    // This is a simple prefix search on the lowercase field
+    // For production, consider Algolia or similar for better search
     const q = query(
       usersRef,
-      where('displayName', '>=', searchTerm),
-      where('displayName', '<=', searchTerm + '\uf8ff')
+      where('displayNameLower', '>=', searchTermLower),
+      where('displayNameLower', '<=', searchTermLower + '\uf8ff')
     );
 
     const snapshot = await getDocs(q);

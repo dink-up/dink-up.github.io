@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { eventService } from '@/services/eventService';
+import { userService } from '@/services/userService';
 import type { Event, EventParticipant } from '@/types/event.types';
 
 interface UseEventResult {
@@ -35,7 +36,26 @@ export function useEvent(eventId: string | undefined): UseEventResult {
       // Fetch participants if event exists
       if (eventData) {
         const participantData = await eventService.getParticipants(eventId);
-        setParticipants(participantData);
+        
+        // Fetch user profiles for all participants
+        if (participantData.length > 0) {
+          const userIds = participantData.map(p => p.id);
+          const userProfiles = await userService.getByIds(userIds);
+          
+          // Create a map of user profiles for quick lookup
+          const profileMap = new Map(userProfiles.map(u => [u.id, u]));
+          
+          // Merge user profile data into participants
+          const enrichedParticipants = participantData.map(participant => ({
+            ...participant,
+            displayName: profileMap.get(participant.id)?.displayName,
+            photoUrl: profileMap.get(participant.id)?.photoUrl,
+          }));
+          
+          setParticipants(enrichedParticipants);
+        } else {
+          setParticipants([]);
+        }
       } else {
         setParticipants([]);
       }

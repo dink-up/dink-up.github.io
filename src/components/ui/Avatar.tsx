@@ -5,6 +5,8 @@ type AvatarSize = 'small' | 'default' | 'large';
 interface AvatarProps {
   /** URL of the user's profile photo (from OAuth provider) */
   src?: string | null;
+  /** Alternative prop name for photo URL (alias for src) */
+  photoUrl?: string | null;
   /** User ID for generating deterministic avatar when no photo */
   userId?: string;
   /** User's display name for initials on generated avatar */
@@ -32,17 +34,21 @@ const svgSizes: Record<AvatarSize, number> = {
 
 export function Avatar({ 
   src, 
+  photoUrl,
   userId, 
   displayName,
   alt = 'User', 
   size = 'default', 
   className = '' 
 }: AvatarProps) {
+  // Use src or photoUrl (photoUrl is an alias for src)
+  const imageUrl = src || photoUrl;
+  
   // If there's an OAuth photo URL, use it
-  if (src) {
+  if (imageUrl) {
     return (
       <img
-        src={src}
+        src={imageUrl}
         alt={alt}
         className={`
           ${sizeStyles[size]}

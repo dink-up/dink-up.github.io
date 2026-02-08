@@ -92,3 +92,6 @@ export function Badge({ children, variant = 'default', className = '' }: BadgePr
     </span>
   );
 }
+
+// Participant status badge (alias for StatusBadge for semantic clarity)
+export const ParticipantStatusBadge = StatusBadge;

@@ -1,28 +1,42 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Calendar, Clock, MapPin, ExternalLink } from 'lucide-react';
+import { Calendar, Clock, MapPin, ExternalLink, UserPlus, Search, X, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { CapacityBar } from '@/components/ui/CapacityBar';
-import { StatusBadge, RoleBadge } from '@/components/ui/Badge';
+import { StatusBadge, RoleBadge, ParticipantStatusBadge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 import { Avatar } from '@/components/ui/Avatar';
+import { Modal } from '@/components/ui/Modal';
 import { useEvent } from '@/hooks/useEvent';
 import { useAuth } from '@/hooks/useAuth';
 import { eventService } from '@/services/eventService';
+import { userService } from '@/services/userService';
 import { ROUTES } from '@/config/routes';
 import type { EventParticipant } from '@/types/event.types';
+import type { UserProfile } from '@/types/user.types';
 
 export function EventDetailView() {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { event, participants, isLoading, error, refetch } = useEvent(eventId);
+  
+  // Modal state
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<UserProfile[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [inviting, setInviting] = useState<string | null>(null);
 
   // Check user's participation status
   const userParticipant = participants.find(p => p.id === user?.uid);
   const isOwner = event?.ownerId === user?.uid;
+  const isAdmin = event?.adminIds?.includes(user?.uid || '');
+  const canManage = isOwner || isAdmin;
   const isJoined = userParticipant?.status === 'joined';
   const isWaitlisted = userParticipant?.status === 'waitlisted';
   const isInvited = userParticipant?.status === 'invited_pending';
@@ -33,6 +47,7 @@ export function EventDetailView() {
   const waitlistedParticipants = participants
     .filter(p => p.status === 'waitlisted')
     .sort((a, b) => (a.waitlistPosition || 0) - (b.waitlistPosition || 0));
+  const declinedParticipants = participants.filter(p => p.status === 'declined');
 
   const handleJoin = async () => {
     if (!eventId || !user) return;
@@ -60,6 +75,88 @@ export function EventDetailView() {
       `${event.venueName}, ${event.formattedAddress}`
     )}`;
     window.open(url, '_blank');
+  };
+
+  // Share event using native share API
+  const handleShare = async () => {
+    if (!event) return;
+    
+    const eventUrl = window.location.href;
+    const shareData = {
+      title: event.name,
+      text: `Join me for ${event.name} on ${format(event.date, 'EEEE, MMMM d')} at ${event.venueName}!`,
+      url: eventUrl,
+    };
+
+    // Check if native share is available (iOS, Android, some desktop browsers)
+    if (navigator.share && navigator.canShare?.(shareData)) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        // User cancelled or share failed - that's ok
+        if ((err as Error).name !== 'AbortError') {
+          console.error('Share failed:', err);
+        }
+      }
+    } else {
+      // Fallback: copy link to clipboard
+      try {
+        await navigator.clipboard.writeText(eventUrl);
+        // Could show a toast notification here
+        alert('Link copied to clipboard!');
+      } catch (err) {
+        console.error('Copy failed:', err);
+      }
+    }
+  };
+
+  // Search for users to invite
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+    if (query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const results = await userService.searchByName(query, 10);
+      // Filter out users who are already participants
+      const participantIds = new Set(participants.map(p => p.id));
+      const filteredResults = results.filter(u => !participantIds.has(u.id));
+      setSearchResults(filteredResults);
+    } catch (err) {
+      console.error('Search failed:', err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Invite a user
+  const handleInvite = async (userId: string) => {
+    if (!eventId || !user) return;
+    setInviting(userId);
+    try {
+      await eventService.inviteUser(eventId, userId, user.uid);
+      // Remove from search results
+      setSearchResults(prev => prev.filter(u => u.id !== userId));
+      refetch();
+    } catch (err) {
+      console.error('Failed to invite user:', err);
+    } finally {
+      setInviting(null);
+    }
+  };
+
+  // Remove a participant (for owners/admins)
+  const handleRemove = async (userId: string) => {
+    if (!eventId) return;
+    try {
+      await eventService.removeParticipant(eventId, userId);
+      refetch();
+    } catch (err) {
+      console.error('Failed to remove participant:', err);
+    }
   };
 
   if (isLoading) {
@@ -97,10 +194,19 @@ export function EventDetailView() {
         {/* Event Header */}
         <div>
           <div className="flex items-start justify-between mb-2">
-            <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+            <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 flex-1 pr-3">
               {event.name}
             </h1>
-            <StatusBadge status={event.status} />
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleShare}
+                className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
+                title="Share event"
+              >
+                <Share2 className="w-5 h-5" />
+              </button>
+              <StatusBadge status={event.status} />
+            </div>
           </div>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Organized by {isOwner ? 'you' : 'event owner'}
@@ -154,6 +260,24 @@ export function EventDetailView() {
           <CapacityBar current={event.joinedCount} max={event.maxPlayers} />
         </Card>
 
+        {/* Admin Controls */}
+        {canManage && (
+          <Card>
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-medium text-slate-900 dark:text-slate-100">
+                Manage Event
+              </h3>
+              <Button
+                size="small"
+                onClick={() => setShowInviteModal(true)}
+              >
+                <UserPlus className="w-4 h-4" />
+                Invite Players
+              </Button>
+            </div>
+          </Card>
+        )}
+
         {/* Participants */}
         <Card>
           <h3 className="text-base font-medium text-slate-900 dark:text-slate-100 mb-3">
@@ -163,15 +287,17 @@ export function EventDetailView() {
           {/* Joined */}
           {joinedParticipants.length > 0 ? (
             <div className="space-y-2 mb-4">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+              <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase">
                 Joined ({joinedParticipants.length})
               </p>
               {joinedParticipants.map(participant => (
                 <ParticipantRow
                   key={participant.id}
                   participant={participant}
-                  isOwner={participant.id === event.ownerId}
-                  isAdmin={event.adminIds?.includes(participant.id)}
+                  isEventOwner={participant.id === event.ownerId}
+                  isEventAdmin={event.adminIds?.includes(participant.id) || false}
+                  canManage={canManage || false}
+                  onRemove={() => handleRemove(participant.id)}
                 />
               ))}
             </div>
@@ -184,15 +310,18 @@ export function EventDetailView() {
           {/* Invited - Pending */}
           {invitedParticipants.length > 0 && (
             <div className="space-y-2 mb-4">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
-                Invited ({invitedParticipants.length})
+              <p className="text-xs font-medium text-amber-600 dark:text-amber-400 uppercase">
+                Invited - Pending ({invitedParticipants.length})
               </p>
               {invitedParticipants.map(participant => (
                 <ParticipantRow
                   key={participant.id}
                   participant={participant}
-                  isOwner={false}
-                  isAdmin={false}
+                  isEventOwner={false}
+                  isEventAdmin={false}
+                  canManage={canManage || false}
+                  onRemove={() => handleRemove(participant.id)}
+                  showStatus
                 />
               ))}
             </div>
@@ -200,17 +329,39 @@ export function EventDetailView() {
 
           {/* Waitlisted */}
           {waitlistedParticipants.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+            <div className="space-y-2 mb-4">
+              <p className="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase">
                 Waitlist ({waitlistedParticipants.length})
               </p>
               {waitlistedParticipants.map(participant => (
                 <ParticipantRow
                   key={participant.id}
                   participant={participant}
-                  isOwner={false}
-                  isAdmin={false}
+                  isEventOwner={false}
+                  isEventAdmin={false}
+                  canManage={canManage || false}
+                  onRemove={() => handleRemove(participant.id)}
                   waitlistPosition={participant.waitlistPosition}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Declined */}
+          {declinedParticipants.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                Declined ({declinedParticipants.length})
+              </p>
+              {declinedParticipants.map(participant => (
+                <ParticipantRow
+                  key={participant.id}
+                  participant={participant}
+                  isEventOwner={false}
+                  isEventAdmin={false}
+                  canManage={canManage || false}
+                  onRemove={() => handleRemove(participant.id)}
+                  showStatus
                 />
               ))}
             </div>
@@ -263,6 +414,74 @@ export function EventDetailView() {
             )}
           </div>
         </div>
+        {/* Invite Players Modal */}
+        <Modal
+          isOpen={showInviteModal}
+          onClose={() => {
+            setShowInviteModal(false);
+            setSearchQuery('');
+            setSearchResults([]);
+          }}
+          title="Invite Players"
+        >
+          <div className="space-y-4">
+            <Input
+              label="Search by name"
+              placeholder="Start typing to search..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              icon={<Search className="w-4 h-4" />}
+            />
+
+            {isSearching && (
+              <div className="flex justify-center py-4">
+                <Spinner />
+              </div>
+            )}
+
+            {!isSearching && searchResults.length > 0 && (
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {searchResults.map(userProfile => (
+                  <div
+                    key={userProfile.id}
+                    className="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-800 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Avatar
+                        userId={userProfile.id}
+                        photoUrl={userProfile.photoUrl}
+                        displayName={userProfile.displayName}
+                        size="small"
+                      />
+                      <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                        {userProfile.displayName}
+                      </span>
+                    </div>
+                    <Button
+                      size="small"
+                      onClick={() => handleInvite(userProfile.id)}
+                      loading={inviting === userProfile.id}
+                    >
+                      Invite
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!isSearching && searchQuery.length >= 2 && searchResults.length === 0 && (
+              <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">
+                No users found matching "{searchQuery}"
+              </p>
+            )}
+
+            {searchQuery.length < 2 && (
+              <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">
+                Type at least 2 characters to search
+              </p>
+            )}
+          </div>
+        </Modal>
       </div>
     </PageLayout>
   );
@@ -271,32 +490,55 @@ export function EventDetailView() {
 // Helper component for participant rows
 function ParticipantRow({
   participant,
-  isOwner,
-  isAdmin,
+  isEventOwner,
+  isEventAdmin,
+  canManage,
+  onRemove,
   waitlistPosition,
+  showStatus,
 }: {
   participant: EventParticipant;
-  isOwner: boolean;
-  isAdmin: boolean;
+  isEventOwner: boolean;
+  isEventAdmin: boolean;
+  canManage: boolean;
+  onRemove: () => void;
   waitlistPosition?: number | null;
+  showStatus?: boolean;
 }) {
   return (
     <div className="flex items-center gap-3 py-2">
-      <Avatar userId={participant.id} size="small" />
+      <Avatar 
+        userId={participant.id} 
+        photoUrl={participant.photoUrl}
+        displayName={participant.displayName}
+        size="small" 
+      />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
-          User {participant.id.slice(0, 8)}...
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+            {participant.displayName || 'Unknown User'}
+          </p>
+          {isEventOwner && <RoleBadge role="owner" />}
+          {isEventAdmin && !isEventOwner && <RoleBadge role="admin" />}
+        </div>
         {waitlistPosition && (
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Position #{waitlistPosition}
           </p>
         )}
+        {showStatus && (
+          <ParticipantStatusBadge status={participant.status} />
+        )}
       </div>
-      <div className="flex gap-1">
-        {isOwner && <RoleBadge role="owner" />}
-        {isAdmin && !isOwner && <RoleBadge role="admin" />}
-      </div>
+      {canManage && !isEventOwner && (
+        <button
+          onClick={onRemove}
+          className="p-1 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+          title="Remove participant"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      )}
     </div>
   );
 }
