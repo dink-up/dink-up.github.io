@@ -198,12 +198,13 @@ export const eventService = {
     const eventsRef = collection(db, 'events');
     const q = query(
       eventsRef,
-      where('ownerId', '==', ownerId),
-      orderBy('date', 'desc')
+      where('ownerId', '==', ownerId)
     );
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(eventDoc => docToEvent(eventDoc.id, eventDoc.data()));
+    const events = snapshot.docs.map(eventDoc => docToEvent(eventDoc.id, eventDoc.data()));
+    // Sort client-side by date descending (newest first)
+    return events.sort((a, b) => b.date.getTime() - a.date.getTime());
   },
 
   // Get events where user is participant
@@ -211,8 +212,7 @@ export const eventService = {
     const eventsRef = collection(db, 'events');
     const q = query(
       eventsRef,
-      where('status', '==', 'active'),
-      orderBy('date', 'asc')
+      where('status', '==', 'active')
     );
 
     const snapshot = await getDocs(q);
@@ -227,7 +227,8 @@ export const eventService = {
       }
     }
 
-    return participantEvents;
+    // Sort client-side by date ascending
+    return participantEvents.sort((a, b) => a.date.getTime() - b.date.getTime());
   },
 
   // Add admin to event
