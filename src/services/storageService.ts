@@ -14,7 +14,7 @@ export const storageService = {
   },
 
   // Delete profile photo
-  async deleteProfilePhoto(userId: string, photoUrl: string): Promise<void> {
+  async deleteProfilePhoto(_userId: string, photoUrl: string): Promise<void> {
     try {
       // Extract the path from the URL
       const storageRef = ref(storage, photoUrl);

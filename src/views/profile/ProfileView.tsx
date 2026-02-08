@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import { Settings, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { PageLayout } from '@/components/layout/PageLayout';
-import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
 import { ROUTES } from '@/config/routes';

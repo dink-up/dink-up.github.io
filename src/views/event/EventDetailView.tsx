@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { Calendar, Clock, MapPin, Users } from 'lucide-react';
+import { Calendar, Clock, MapPin } from 'lucide-react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -9,6 +9,7 @@ import { Spinner } from '@/components/ui/Spinner';
 
 export function EventDetailView() {
   const { eventId } = useParams();
+  void eventId; // TODO: Will be used for data fetching
 
   // Placeholder - will be replaced with actual data fetching
   const isLoading = false;
