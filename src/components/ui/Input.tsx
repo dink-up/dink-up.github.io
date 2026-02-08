@@ -28,7 +28,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               w-full h-11 bg-white dark:bg-slate-900 
               border rounded-lg text-slate-900 dark:text-slate-100
               placeholder:text-slate-400 dark:placeholder:text-slate-500
-              focus:outline-none focus:border-teal-600 dark:focus:border-teal-400
+              focus:outline-none focus:border-cyan-600 dark:focus:border-cyan-400
               disabled:opacity-50 disabled:cursor-not-allowed
               ${icon ? 'pl-10 pr-3' : 'px-3'}
               ${error ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'}

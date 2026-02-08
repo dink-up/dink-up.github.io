@@ -37,7 +37,25 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
     // Add new theme class
     root.classList.add(resolvedTheme);
-  }, [resolvedTheme]);
+
+    // Update theme-color meta tag for iOS Safari
+    const themeColor = resolvedTheme === 'dark' ? '#020617' : '#ffffff';
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]:not([media])');
+    
+    // If user has manually set a theme (not system), we need to override the media-query based meta tags
+    if (theme !== 'system') {
+      // Remove media-based theme-color tags and use a single one
+      const mediaBasedTags = document.querySelectorAll('meta[name="theme-color"][media]');
+      mediaBasedTags.forEach(tag => tag.remove());
+      
+      if (!metaThemeColor) {
+        metaThemeColor = document.createElement('meta');
+        metaThemeColor.setAttribute('name', 'theme-color');
+        document.head.appendChild(metaThemeColor);
+      }
+      metaThemeColor.setAttribute('content', themeColor);
+    }
+  }, [resolvedTheme, theme]);
 
   useEffect(() => {
     // Listen for system theme changes

@@ -31,7 +31,7 @@ export function SettingsView() {
                   value={option.value}
                   checked={theme === option.value}
                   onChange={() => setTheme(option.value)}
-                  className="w-4 h-4 text-teal-600 border-slate-300 focus:ring-teal-500"
+                  className="w-4 h-4 text-cyan-600 border-slate-300 focus:ring-cyan-500"
                 />
                 <span className="text-slate-900 dark:text-slate-100">
                   {option.label}

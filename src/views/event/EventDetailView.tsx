@@ -263,7 +263,7 @@ export function EventDetailView() {
               </span>
             </div>
             <div
-              className="flex items-start gap-3 text-slate-600 dark:text-slate-400 cursor-pointer hover:text-teal-600 dark:hover:text-teal-400"
+              className="flex items-start gap-3 text-slate-600 dark:text-slate-400 cursor-pointer hover:text-cyan-600 dark:hover:text-cyan-400"
               onClick={handleOpenMaps}
             >
               <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5" />
@@ -410,7 +410,7 @@ export function EventDetailView() {
             <h3 className="text-base font-medium text-slate-900 dark:text-slate-100 mb-2">
               Event Code
             </h3>
-            <p className="text-lg font-mono font-bold text-teal-600 dark:text-teal-400">
+            <p className="text-lg font-mono font-bold text-cyan-600 dark:text-cyan-400">
               {event.eventCode}
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">

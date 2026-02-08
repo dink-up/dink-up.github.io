@@ -14,7 +14,7 @@ export function CapacityBar({ current, max, className = '', showText = true }: C
       <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full transition-all ${
-            isFull ? 'bg-amber-500' : 'bg-teal-600 dark:bg-teal-400'
+            isFull ? 'bg-amber-500' : 'bg-cyan-600 dark:bg-cyan-400'
           }`}
           style={{ width: `${percentage}%` }}
         />

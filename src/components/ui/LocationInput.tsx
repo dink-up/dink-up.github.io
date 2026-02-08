@@ -255,7 +255,7 @@ export function LocationInput({
           onChange={handleInputChange}
           onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
           placeholder="Search for a venue or address"
-          className={`w-full h-11 pl-10 pr-10 bg-white dark:bg-slate-900 border rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-teal-600 ${error ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'}`}
+          className={`w-full h-11 pl-10 pr-10 bg-white dark:bg-slate-900 border rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-cyan-600 ${error ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'}`}
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
           {isLoading && <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />}
@@ -288,7 +288,7 @@ export function LocationInput({
       )}
 
       {inputValue && !value && !isManualEntry && suggestions.length === 0 && !isLoading && (
-        <button type="button" onClick={() => setIsManualEntry(true)} className="text-xs text-teal-600 hover:underline">
+        <button type="button" onClick={() => setIsManualEntry(true)} className="text-xs text-cyan-600 hover:underline">
           Can't find your location? Enter manually
         </button>
       )}
@@ -296,7 +296,7 @@ export function LocationInput({
       {isManualEntry && (
         <div className="space-y-2">
           <p className="text-xs text-slate-500">Enter manually, then tap "Use this address"</p>
-          <button type="button" onClick={handleManualSubmit} className="text-xs text-teal-600 hover:underline">Use this address</button>
+          <button type="button" onClick={handleManualSubmit} className="text-xs text-cyan-600 hover:underline">Use this address</button>
         </div>
       )}
 

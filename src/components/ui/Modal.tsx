@@ -134,7 +134,7 @@ export function ConfirmModal({
             disabled:opacity-50 disabled:cursor-not-allowed
             ${variant === 'danger'
               ? 'bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-400'
-              : 'bg-teal-600 text-white hover:bg-teal-700 dark:bg-teal-500 dark:text-slate-950 dark:hover:bg-teal-400'
+              : 'bg-cyan-600 text-white hover:bg-cyan-700 dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400'
             }
           `}
           disabled={loading}

@@ -5,10 +5,10 @@
  * The avatar is computed client-side and produces the same result across all devices.
  */
 
-// Gradient color pairs - vibrant, modern colors that complement the teal brand
+// Gradient color pairs - vibrant, modern colors that complement the cyan brand
 const GRADIENT_PAIRS = [
-  ['#0d9488', '#14b8a6'], // teal-600 to teal-500
   ['#0891b2', '#06b6d4'], // cyan-600 to cyan-500
+  ['#0ea5e9', '#38bdf8'], // sky-500 to sky-400
   ['#059669', '#10b981'], // emerald-600 to emerald-500
   ['#7c3aed', '#8b5cf6'], // violet-600 to violet-500
   ['#db2777', '#ec4899'], // pink-600 to pink-500

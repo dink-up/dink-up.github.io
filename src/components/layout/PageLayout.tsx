@@ -43,7 +43,7 @@ export function PageLayout({
                   {title}
                 </h1>
               ) : !showBack && (
-                <span className="text-xl font-bold text-teal-600 dark:text-teal-400">
+                <span className="text-xl font-bold text-cyan-600 dark:text-cyan-400">
                   Dink Up
                 </span>
               )}
