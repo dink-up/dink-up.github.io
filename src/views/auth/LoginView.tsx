@@ -32,7 +32,10 @@ export function LoginView() {
     try {
       await signInWithGoogle();
     } catch (err) {
-      setError('Failed to sign in with Google');
+      console.error('Google login error:', err);
+      // Show the actual error message for debugging
+      const errorMessage = err instanceof Error ? err.message : 'Failed to sign in with Google';
+      setError(errorMessage);
     }
   };
 

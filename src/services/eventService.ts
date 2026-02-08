@@ -16,6 +16,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import type { Event, CreateEventData, UpdateEventData, EventParticipant, ParticipantStatus } from '@/types/event.types';
+import { generateEventCode } from '@/utils/eventCodeUtils';
 
 // Helper to convert Firestore timestamps to Date
 const convertTimestamp = (timestamp: Timestamp | null): Date => {
@@ -47,22 +48,52 @@ const docToEvent = (id: string, data: Record<string, unknown>): Event => ({
   updatedAt: convertTimestamp(data.updatedAt as Timestamp),
 });
 
+// Helper to remove undefined values from an object (Firestore doesn't accept undefined)
+const removeUndefined = <T extends Record<string, unknown>>(obj: T): Partial<T> => {
+  const result: Partial<T> = {};
+  for (const key in obj) {
+    if (obj[key] !== undefined) {
+      result[key] = obj[key];
+    }
+  }
+  return result;
+};
+
 export const eventService = {
   // Create a new event
   async create(data: CreateEventData, ownerId: string): Promise<string> {
     const eventsRef = collection(db, 'events');
     
-    // If eventCode is provided, check uniqueness
-    if (data.eventCode) {
-      const isUnique = await this.isEventCodeUnique(data.eventCode);
-      if (!isUnique) {
-        throw new Error('Event code is already in use');
-      }
+    // Generate a unique event code for ALL events
+    let eventCode = generateEventCode();
+    let attempts = 0;
+    const maxAttempts = 10;
+    
+    while (!(await this.isEventCodeUnique(eventCode)) && attempts < maxAttempts) {
+      eventCode = generateEventCode();
+      attempts++;
+    }
+    
+    if (attempts >= maxAttempts) {
+      throw new Error('Failed to generate unique event code. Please try again.');
     }
 
-    const docRef = await addDoc(eventsRef, {
-      ...data,
-      status: 'active',
+    // Build the event data, filtering out undefined values
+    const eventData = removeUndefined({
+      name: data.name,
+      description: data.description,
+      date: data.date,
+      endTime: data.endTime,
+      maxPlayers: data.maxPlayers,
+      venueName: data.venueName,
+      formattedAddress: data.formattedAddress,
+      latitude: data.latitude,
+      longitude: data.longitude,
+      placeId: data.placeId,
+      visibility: data.visibility,
+      joinType: data.joinType,
+      eventCode, // Always set the auto-generated code
+      status: 'active' as const,
       ownerId,
       adminIds: [],
       joinedCount: 0,
@@ -70,6 +101,8 @@ export const eventService = {
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
+
+    const docRef = await addDoc(eventsRef, eventData);
 
     return docRef.id;
   },
