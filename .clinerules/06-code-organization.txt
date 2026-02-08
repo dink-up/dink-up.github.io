@@ -1,6 +1,6 @@
 Code Organization
 
-Dink Up – Code Structure & Organization Guidelines
+Dinked In – Code Structure & Organization Guidelines
 
 ---
 

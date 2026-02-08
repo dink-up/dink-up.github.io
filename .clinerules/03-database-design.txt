@@ -1,6 +1,6 @@
 juDb design
 
-Dink Up – Firestore Database Model (MVP)
+Dinked In – Firestore Database Model (MVP)
 
 COLLECTION: users
 Document ID: userId (Firebase Auth UID)

@@ -43,7 +43,7 @@ export function LoginView() {
     <SimpleLayout className="flex flex-col justify-center">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">
-          Dink Up
+          Dinked In
         </h1>
         <p className="text-slate-600 dark:text-slate-400">
           Organize your pickleball games

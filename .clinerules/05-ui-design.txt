@@ -1,6 +1,6 @@
 UI Design
 
-Dink Up – Visual Design System (MVP)
+Dinked In – Visual Design System (MVP)
 
 Design Philosophy: Simple, flat, aesthetic. Clean lines, generous whitespace, calm and functional.
 

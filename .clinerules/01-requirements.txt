@@ -1,9 +1,9 @@
-Dink Up
+Dinked In
 
-Dink Up – MVP Requirements
+Dinked In – MVP Requirements
 
 Core Identity:
-Dink Up is a structured, reliable way to organize serious pickleball games with controlled capacity and clear participation — eliminating group text chaos.
+Dinked In is a structured, reliable way to organize serious pickleball games with controlled capacity and clear participation — eliminating group text chaos.
 
 1. Authentication
 

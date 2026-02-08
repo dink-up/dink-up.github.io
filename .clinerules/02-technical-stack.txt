@@ -1,6 +1,6 @@
 Technical Stack
 
-Dink Up – Technical Architecture (MVP)
+Dinked In – Technical Architecture (MVP)
 
 ---
 

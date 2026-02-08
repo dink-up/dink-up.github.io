@@ -1,6 +1,6 @@
 UI structure
 
-Dink Up – UI Structure (MVP)
+Dinked In – UI Structure (MVP)
 Core Identity: Structured, reliable event coordination for serious pickleball runs.
 No chat. No social feed. No reputation system.
 
